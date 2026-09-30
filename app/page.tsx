@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "../lib/supabase";
 
 type Category = {
   id: string;
@@ -58,40 +58,26 @@ export default function Home() {
     async function loadStore() {
       const [categoryResult, productResult] = await Promise.all([
         supabase.from("categories").select("id,name,description,emoji").order("name"),
-        supabase
-          .from("products")
-          .select("id,name,description,price,old_price,emoji,stock,categories(name)")
-          .eq("is_active", true)
-          .order("created_at", { ascending: false }),
+        supabase.from("products").select("id,name,description,price,old_price,emoji,stock,categories(name)").eq("is_active", true).order("created_at", { ascending: false }),
       ]);
 
-      if (!categoryResult.error && categoryResult.data?.length) {
-        setCategories(categoryResult.data as Category[]);
-      }
+      if (!categoryResult.error && categoryResult.data?.length) setCategories(categoryResult.data as Category[]);
 
       if (!productResult.error && productResult.data?.length) {
         const liveProducts: Product[] = productResult.data.map((p: any) => ({
-          id: p.id,
-          name: p.name,
-          description: p.description ?? null,
-          category: p.categories?.name ?? "Other",
-          price: Number(p.price),
-          old: p.old_price === null ? null : Number(p.old_price),
-          emoji: p.emoji ?? "🛍️",
-          stock: Number(p.stock ?? 0),
+          id: p.id, name: p.name, description: p.description ?? null, category: p.categories?.name ?? "Other",
+          price: Number(p.price), old: p.old_price === null ? null : Number(p.old_price), emoji: p.emoji ?? "🛍️", stock: Number(p.stock ?? 0),
         }));
         setProducts(liveProducts);
       }
 
       setLoading(false);
-
       if (categoryResult.error || productResult.error) {
         console.error("Supabase store loading error:", categoryResult.error ?? productResult.error);
         setMessage("Live database could not be loaded. Showing available products.");
         window.setTimeout(() => setMessage(""), 3000);
       }
     }
-
     loadStore();
   }, []);
 
@@ -125,59 +111,38 @@ export default function Home() {
   return (
     <main>
       {message && <div className="toast">{message}</div>}
-
-      <header className="topbar">
-        <div className="container nav">
-          <button className="logo logo-button" onClick={() => { setCategory("All"); setQuery(""); window.scrollTo({ top: 0, behavior: "smooth" }); }}>DEEPANSHI<span>.</span></button>
-          <div className="search"><span>⌕</span><input aria-label="Search products" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search for products, brands and more..." /></div>
-          <div className="nav-actions">
-            <button onClick={() => document.getElementById("wishlist")?.scrollIntoView({ behavior: "smooth" })}>♡ <span>Wishlist ({wishlist.length})</span></button>
-            <button onClick={() => setAccountOpen(true)}>♙ <span>Account</span></button>
-            <button onClick={() => document.getElementById("cart")?.scrollIntoView({ behavior: "smooth" })}>🛒 <span>Cart ({cart.length})</span></button>
-          </div>
+      <header className="topbar"><div className="container nav">
+        <button className="logo logo-button" onClick={() => { setCategory("All"); setQuery(""); window.scrollTo({ top: 0, behavior: "smooth" }); }}>DEEPANSHI<span>.</span></button>
+        <div className="search"><span>⌕</span><input aria-label="Search products" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search for products, brands and more..." /></div>
+        <div className="nav-actions">
+          <button onClick={() => document.getElementById("wishlist")?.scrollIntoView({ behavior: "smooth" })}>♡ <span>Wishlist ({wishlist.length})</span></button>
+          <button onClick={() => setAccountOpen(true)}>♙ <span>Account</span></button>
+          <button onClick={() => document.getElementById("cart")?.scrollIntoView({ behavior: "smooth" })}>🛒 <span>Cart ({cart.length})</span></button>
         </div>
-      </header>
-
-      <nav className="category-nav">
-        <div className="container category-links">
-          <button onClick={() => chooseCategory("All")}>All Categories</button>
-          {categories.slice(0, 6).map((c) => <button onClick={() => chooseCategory(c.name)} key={c.id}>{c.emoji} {c.name}</button>)}
-          <button onClick={() => { setCategory("All"); document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }); }}>Deals</button>
+      </div></header>
+      <nav className="category-nav"><div className="container category-links">
+        <button onClick={() => chooseCategory("All")}>All Categories</button>
+        {categories.slice(0, 6).map((c) => <button onClick={() => chooseCategory(c.name)} key={c.id}>{c.emoji} {c.name}</button>)}
+        <button onClick={() => { setCategory("All"); document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }); }}>Deals</button>
+      </div></nav>
+      <section className="hero"><div className="container hero-inner">
+        <div className="hero-copy"><p className="eyebrow">WELCOME TO DEEPANSHI</p><h1>Everything you need.<br /><em>All in one place.</em></h1><p className="hero-text">Discover fashion, electronics, beauty, home essentials and more — with new products arriving every day.</p>
+          <div className="hero-buttons"><button className="btn primary" onClick={() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" })}>Shop Now →</button><button className="btn secondary" onClick={() => document.getElementById("categories")?.scrollIntoView({ behavior: "smooth" })}>Explore Categories</button></div>
+          <div className="trust"><span>✓ Secure shopping</span><span>✓ Easy returns</span><span>✓ Great value</span></div>
         </div>
-      </nav>
-
-      <section className="hero">
-        <div className="container hero-inner">
-          <div className="hero-copy">
-            <p className="eyebrow">WELCOME TO DEEPANSHI</p>
-            <h1>Everything you need.<br /><em>All in one place.</em></h1>
-            <p className="hero-text">Discover fashion, electronics, beauty, home essentials and more — with new products arriving every day.</p>
-            <div className="hero-buttons"><button className="btn primary" onClick={() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" })}>Shop Now →</button><button className="btn secondary" onClick={() => document.getElementById("categories")?.scrollIntoView({ behavior: "smooth" })}>Explore Categories</button></div>
-            <div className="trust"><span>✓ Secure shopping</span><span>✓ Easy returns</span><span>✓ Great value</span></div>
-          </div>
-          <div className="hero-art"><div className="orbit one">🛍️</div><div className="orbit two">📱</div><div className="orbit three">👗</div><div className="hero-card"><div>✨</div><strong>One marketplace.<br />Countless possibilities.</strong><small>Shop your world</small></div></div>
-        </div>
-      </section>
-
-      <section id="categories" className="section container">
-        <div className="section-head"><div><p className="eyebrow">SHOP BY CATEGORY</p><h2>Find what you love</h2></div><button className="link-button" onClick={() => chooseCategory("All")}>View all →</button></div>
+        <div className="hero-art"><div className="orbit one">🛍️</div><div className="orbit two">📱</div><div className="orbit three">👗</div><div className="hero-card"><div>✨</div><strong>One marketplace.<br />Countless possibilities.</strong><small>Shop your world</small></div></div>
+      </div></section>
+      <section id="categories" className="section container"><div className="section-head"><div><p className="eyebrow">SHOP BY CATEGORY</p><h2>Find what you love</h2></div><button className="link-button" onClick={() => chooseCategory("All")}>View all →</button></div>
         <div className="category-grid">{categories.map((c) => <button className="category-card" onClick={() => chooseCategory(c.name)} key={c.id}><div className="category-icon">{c.emoji}</div><strong>{c.name}</strong><span>{c.description}</span></button>)}</div>
       </section>
-
-      <section id="products" className="section products-section">
-        <div className="container">
-          <div className="section-head"><div><p className="eyebrow">TRENDING NOW</p><h2>{category === "All" ? "Popular picks" : category}</h2></div><button className="link-button" onClick={() => { setCategory("All"); setQuery(""); }}>See all products →</button></div>
-          {loading ? <div className="empty">Loading products from DEEPANSHI database...</div> : filteredProducts.length === 0 ? <div className="empty">No products found. Try another search.</div> : <div className="product-grid">{filteredProducts.map((p) => <article className="product-card" key={p.id}><button className={`heart ${wishlist.includes(p.id) ? "active" : ""}`} aria-label={`Add ${p.name} to wishlist`} onClick={() => toggleWishlist(p.id, p.name)}>{wishlist.includes(p.id) ? "♥" : "♡"}</button><div className="product-image">{p.emoji}</div><div className="product-info"><span className="product-category">{p.category}</span><h3>{p.name}</h3><div><strong>{money(p.price)}</strong> {p.old !== null && <del>{money(p.old)}</del>}</div><button className="add-cart" onClick={() => addToCart(p.id, p.name)}>Add to Cart</button></div></article>)}</div>}
-        </div>
-      </section>
-
+      <section id="products" className="section products-section"><div className="container">
+        <div className="section-head"><div><p className="eyebrow">TRENDING NOW</p><h2>{category === "All" ? "Popular picks" : category}</h2></div><button className="link-button" onClick={() => { setCategory("All"); setQuery(""); }}>See all products →</button></div>
+        {loading ? <div className="empty">Loading products from DEEPANSHI database...</div> : filteredProducts.length === 0 ? <div className="empty">No products found. Try another search.</div> : <div className="product-grid">{filteredProducts.map((p) => <article className="product-card" key={p.id}><button className={`heart ${wishlist.includes(p.id) ? "active" : ""}`} aria-label={`Add ${p.name} to wishlist`} onClick={() => toggleWishlist(p.id, p.name)}>{wishlist.includes(p.id) ? "♥" : "♡"}</button><div className="product-image">{p.emoji}</div><div className="product-info"><span className="product-category">{p.category}</span><h3>{p.name}</h3><div><strong>{money(p.price)}</strong> {p.old !== null && <del>{money(p.old)}</del>}</div><button className="add-cart" onClick={() => addToCart(p.id, p.name)}>Add to Cart</button></div></article>)}</div>}
+      </div></section>
       <section id="wishlist" className="container mini-panel"><strong>Wishlist</strong><span>{wishlist.length ? `${wishlist.length} item(s)` : "Your wishlist is empty."}</span></section>
       <section id="cart" className="container mini-panel"><strong>Cart</strong><span>{cart.length ? `${cart.length} item(s)` : "Your cart is empty."}</span></section>
-
       <section className="promo"><div className="container promo-inner"><div><p className="eyebrow">NEW TO DEEPANSHI?</p><h2>Get 10% off your first order</h2><p>Sign up for offers, new arrivals and exclusive deals.</p></div><button className="btn primary" onClick={() => setAccountOpen(true)}>Create Account →</button></div></section>
-
       <footer><div className="container footer-grid"><div><button className="logo logo-button footer-logo" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>DEEPANSHI<span>.</span></button><p>Your world of shopping, all in one place.</p></div><div><strong>Shop</strong><button onClick={() => chooseCategory("All")}>All Products</button><button onClick={() => chooseCategory("All")}>Deals</button><button onClick={() => chooseCategory("All")}>New Arrivals</button></div><div><strong>Help</strong><button onClick={() => notify("Contact support will be connected soon.")}>Contact Us</button><button onClick={() => notify("Shipping information will be connected soon.")}>Shipping</button><button onClick={() => notify("Returns information will be connected soon.")}>Returns</button></div><div><strong>Account</strong><button onClick={() => setAccountOpen(true)}>Sign In</button><button onClick={() => document.getElementById("cart")?.scrollIntoView({ behavior: "smooth" })}>My Orders</button><button onClick={() => document.getElementById("wishlist")?.scrollIntoView({ behavior: "smooth" })}>Wishlist</button></div></div><div className="container copyright">© 2026 DEEPANSHI. All rights reserved.</div></footer>
-
       {accountOpen && <div className="modal-backdrop" onClick={() => setAccountOpen(false)}><div className="modal" onClick={(e) => e.stopPropagation()}><button className="modal-close" onClick={() => setAccountOpen(false)}>×</button><p className="eyebrow">DEEPANSHI ACCOUNT</p><h2>Sign in / Create account</h2><p>Account login will be connected to the secure database next.</p><button className="btn primary" onClick={() => { setAccountOpen(false); notify("Account feature is ready for the next setup step."); }}>Continue</button></div></div>}
     </main>
   );
