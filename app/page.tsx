@@ -117,12 +117,12 @@ export default function Home() {
     notify(wishlist.includes(id) ? "Removed from wishlist" : `${name} added to wishlist`);
   }
 
-  function productVisuals(p: Product) {
+  function productVisuals(p: Product): { bg: string; icon: string; label: string; image?: string }[] {
     return [
-      { bg: "#f4e8e1", icon: p.emoji ?? "🛍️", label: "Front view" },
-      { bg: "#eee5df", icon: "✨", label: "Detail view" },
-      { bg: "#e9ddd5", icon: p.emoji ?? "🛍️", label: "Lifestyle view" },
-      { bg: "#f7eee9", icon: "📦", label: "Package view" },
+      { bg: "#f4e8e1", icon: p.emoji ?? "🛍️", label: "Front view", image: p.image },
+      { bg: "#eee5df", icon: "✨", label: "Detail view", image: p.image },
+      { bg: "#e9ddd5", icon: p.emoji ?? "🛍️", label: "Lifestyle view", image: p.image },
+      { bg: "#f7eee9", icon: "📦", label: "Package view", image: p.image },
     ];
   }
 
