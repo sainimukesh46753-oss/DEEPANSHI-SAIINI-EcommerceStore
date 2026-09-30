@@ -19,6 +19,7 @@ type Product = {
   old: number | null;
   emoji: string | null;
   stock: number;
+  image?: string;
 };
 
 const fallbackCategories: Category[] = [
@@ -42,6 +43,17 @@ const fallbackProducts: Product[] = [
 ];
 
 const money = (n: number) => `₹${n.toLocaleString("en-IN")}`;
+
+const extraProducts: Product[] = [
+  { id: "7", emoji: "👕", name: "Classic Cotton T-Shirt", category: "Fashion", price: 599, old: 999, description: "Soft everyday cotton t-shirt.", stock: 70, image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=85" },
+  { id: "8", emoji: "👟", name: "Urban Running Shoes", category: "Fashion", price: 1899, old: 2999, description: "Comfortable running shoes for daily movement.", stock: 45, image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=85" },
+  { id: "9", emoji: "🎧", name: "Studio Wireless Headphones", category: "Electronics", price: 3499, old: 5999, description: "Immersive wireless audio with deep bass.", stock: 30, image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85" },
+  { id: "10", emoji: "⌚", name: "Minimal Smart Watch", category: "Electronics", price: 2799, old: 4499, description: "Smart tracking and notifications in a sleek design.", stock: 28, image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=85" },
+  { id: "11", emoji: "👜", name: "Premium Leather Handbag", category: "Fashion", price: 1599, old: 2499, description: "Elegant everyday handbag with spacious storage.", stock: 38, image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=900&q=85" },
+  { id: "12", emoji: "💡", name: "Modern Bedside Lamp", category: "Home & Kitchen", price: 1099, old: 1599, description: "Warm ambient lighting for your home.", stock: 55, image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=900&q=85" },
+  { id: "13", emoji: "🧴", name: "Skincare Essentials Set", category: "Beauty", price: 899, old: 1299, description: "A simple daily skincare essentials collection.", stock: 65, image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=900&q=85" },
+  { id: "14", emoji: "👓", name: "Everyday Sunglasses", category: "Fashion", price: 799, old: 1299, description: "Classic frame for everyday style.", stock: 42, image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=900&q=85" },
+];
 
 export default function Home() {
   const [categories, setCategories] = useState<Category[]>(fallbackCategories);
@@ -70,7 +82,7 @@ export default function Home() {
           id: p.id, name: p.name, description: p.description ?? null, category: p.categories?.name ?? "Other",
           price: Number(p.price), old: p.old_price === null ? null : Number(p.old_price), emoji: p.emoji ?? "🛍️", stock: Number(p.stock ?? 0),
         }));
-        setProducts(liveProducts);
+        setProducts([...liveProducts, ...extraProducts]);
       }
 
       setLoading(false);
@@ -153,7 +165,7 @@ export default function Home() {
       </section>
       <section id="products" className="section products-section"><div className="container">
         <div className="section-head"><div><p className="eyebrow">TRENDING NOW</p><h2>{category === "All" ? "Popular picks" : category}</h2></div><button className="link-button" onClick={() => { setCategory("All"); setQuery(""); }}>See all products →</button></div>
-        {loading ? <div className="empty">Loading products from DEEPANSHI database...</div> : filteredProducts.length === 0 ? <div className="empty">No products found. Try another search.</div> : <div className="product-grid">{filteredProducts.map((p) => <article className="product-card" key={p.id} onClick={() => openProduct(p)}><button className={`heart ${wishlist.includes(p.id) ? "active" : ""}`} aria-label={`Add ${p.name} to wishlist`} onClick={(e) => { e.stopPropagation(); toggleWishlist(p.id, p.name); }}>{wishlist.includes(p.id) ? "♥" : "♡"}</button><div className="product-image">{p.emoji}</div><div className="product-info"><span className="product-category">{p.category}</span><h3>{p.name}</h3><div><strong>{money(p.price)}</strong> {p.old !== null && <del>{money(p.old)}</del>}</div><button className="add-cart" onClick={(e) => { e.stopPropagation(); addToCart(p.id, p.name); }}>Add to Cart</button></div></article>)}</div>}
+        {loading ? <div className="empty">Loading products from DEEPANSHI database...</div> : filteredProducts.length === 0 ? <div className="empty">No products found. Try another search.</div> : <div className="product-grid">{filteredProducts.map((p) => <article className="product-card" key={p.id} onClick={() => openProduct(p)}><button className={`heart ${wishlist.includes(p.id) ? "active" : ""}`} aria-label={`Add ${p.name} to wishlist`} onClick={(e) => { e.stopPropagation(); toggleWishlist(p.id, p.name); }}>{wishlist.includes(p.id) ? "♥" : "♡"}</button><div className="product-image">{p.image ? <img src={p.image} alt={p.name} loading="lazy" /> : p.emoji}</div><div className="product-info"><span className="product-category">{p.category}</span><h3>{p.name}</h3><div><strong>{money(p.price)}</strong> {p.old !== null && <del>{money(p.old)}</del>}</div><button className="add-cart" onClick={(e) => { e.stopPropagation(); addToCart(p.id, p.name); }}>Add to Cart</button></div></article>)}</div>}
       </div></section>
       <section id="wishlist" className="container mini-panel"><strong>Wishlist</strong><span>{wishlist.length ? `${wishlist.length} item(s)` : "Your wishlist is empty."}</span></section>
       <section id="cart" className="container mini-panel"><strong>Cart</strong><span>{cart.length ? `${cart.length} item(s)` : "Your cart is empty."}</span></section>
@@ -164,10 +176,10 @@ export default function Home() {
           <button className="modal-close" onClick={() => setSelectedProduct(null)}>×</button>
           <div className="gallery">
             <div className="thumbs">
-              {productVisuals(selectedProduct).map((v, i) => <button className={i === activeImage ? "thumb active" : "thumb"} key={i} onClick={() => setActiveImage(i)} style={{ background: v.bg }}>{v.icon}</button>)}
+              {productVisuals(selectedProduct).map((v, i) => <button className={i === activeImage ? "thumb active" : "thumb"} key={i} onClick={() => setActiveImage(i)} style={{ background: v.bg }}>{v.image ? <img src={v.image} alt={v.label} /> : v.icon}</button>)}
             </div>
             <div className="main-visual" style={{ background: productVisuals(selectedProduct)[activeImage].bg }}>
-              <span>{productVisuals(selectedProduct)[activeImage].icon}</span>
+              {productVisuals(selectedProduct)[activeImage].image ? <img src={productVisuals(selectedProduct)[activeImage].image} alt={productVisuals(selectedProduct)[activeImage].label} /> : <span>{productVisuals(selectedProduct)[activeImage].icon}</span>}
               <small>{productVisuals(selectedProduct)[activeImage].label}</small>
             </div>
           </div>
