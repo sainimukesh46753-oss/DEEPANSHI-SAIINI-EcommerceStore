@@ -42,7 +42,9 @@ const fallbackProducts: Product[] = [
   { id: "6", emoji: "🧴", name: "Daily Care Essentials", category: "Beauty", price: 699, old: 999, description: null, stock: 80 },
 ];
 
-const money = (n: number) => `₹${n.toLocaleString("en-IN")}`;\n\nconst moreProducts: Product[] = [
+const money = (n: number) => `₹${n.toLocaleString("en-IN")}`;
+
+const moreProducts: Product[] = [
   { id: "15", emoji: "👗", name: "Elegant Summer Dress", category: "Fashion", price: 1299, old: 2199, description: "Lightweight everyday dress with a comfortable fit.", stock: 35, image: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&w=900&q=85" },
   { id: "16", emoji: "👔", name: "Premium Casual Shirt", category: "Fashion", price: 999, old: 1499, description: "Clean modern shirt for work and weekends.", stock: 44, image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=900&q=85" },
   { id: "17", emoji: "📱", name: "Smartphone Pro Case", category: "Electronics", price: 399, old: 699, description: "Slim protective case with premium finish.", stock: 90, image: "https://images.unsplash.com/photo-1601593346740-925612772716?auto=format&fit=crop&w=900&q=85" },
